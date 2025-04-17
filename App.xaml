@@ -1,0 +1,32 @@
+﻿<Application
+    x:Class="Cephalog.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Cephalog.Converters"
+    xmlns:local="clr-namespace:Cephalog"
+    StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <converters:ObjectNullityConverter x:Key="NullToCollapsedConverter">
+                <converters:ObjectNullityConverter.NotNullValue>
+                    <Visibility>Visible</Visibility>
+                </converters:ObjectNullityConverter.NotNullValue>
+                <converters:ObjectNullityConverter.NullValue>
+                    <Visibility>Collapsed</Visibility>
+                </converters:ObjectNullityConverter.NullValue>
+            </converters:ObjectNullityConverter>
+
+            <converters:ObjectNullityConverter
+                x:Key="IsNullConverter"
+                NotNullValue="false"
+                NullValue="true" />
+            <converters:ObjectNullityConverter
+                x:Key="IsNotNullConverter"
+                NotNullValue="true"
+                NullValue="false" />
+
+            <converters:TimespanConverter x:Key="TimespanConverter" Format="hh\:mm" />
+            <converters:TimespanCeilQuarterConverter x:Key="TimespanQuarterConverter" Format="hh\:mm" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
