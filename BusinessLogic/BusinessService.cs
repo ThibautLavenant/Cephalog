@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Cephalog.Models;
+using System.Collections.ObjectModel;
 
 namespace Cephalog.BusinessLogic
 {
@@ -55,7 +56,17 @@ namespace Cephalog.BusinessLogic
                 storagePath = Path.Combine(storagePath, $"Cephalog");
                 storagePath = Path.Combine(storagePath, $"Cephalog_{day:yy-MM-dd}.data");
                 var storedValue = File.ReadAllText(storagePath);
-                return JsonSerializer.Deserialize<List<TimedTask>>(storedValue) ?? [];
+                var retVal = JsonSerializer.Deserialize<List<TimedTask>>(storedValue) ?? [];
+                foreach (var task in retVal)
+                {
+                    task.TotalTimeSpent = TimeSpan.Zero;
+                    foreach (var timeSpent in task.TimeSpent)
+                    {
+                        timeSpent.Timespan = timeSpent.EndTime - timeSpent.StartTime;
+                        task.TotalTimeSpent += timeSpent.Timespan ?? TimeSpan.Zero;
+                    }
+                }
+                return retVal;
             }
             catch (Exception)
             {
