@@ -57,20 +57,25 @@ namespace Cephalog.BusinessLogic
                 storagePath = Path.Combine(storagePath, $"Cephalog_{day:yy-MM-dd}.data");
                 var storedValue = File.ReadAllText(storagePath);
                 var retVal = JsonSerializer.Deserialize<List<TimedTask>>(storedValue) ?? [];
-                foreach (var task in retVal)
-                {
-                    task.TotalTimeSpent = TimeSpan.Zero;
-                    foreach (var timeSpent in task.TimeSpent)
-                    {
-                        timeSpent.Timespan = timeSpent.EndTime - timeSpent.StartTime;
-                        task.TotalTimeSpent += timeSpent.Timespan ?? TimeSpan.Zero;
-                    }
-                }
+                RecomputeTimeSpent(retVal);
                 return retVal;
             }
             catch (Exception)
             {
                 return new List<TimedTask>();
+            }
+        }
+
+        public void RecomputeTimeSpent(List<TimedTask> tasks)
+        {
+            foreach (var task in tasks)
+            {
+                task.TotalTimeSpent = TimeSpan.Zero;
+                foreach (var timeSpent in task.TimeSpent)
+                {
+                    timeSpent.Timespan = timeSpent.EndTime - timeSpent.StartTime;
+                    task.TotalTimeSpent += timeSpent.Timespan ?? TimeSpan.Zero;
+                }
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -106,6 +107,36 @@ namespace Cephalog
             if (_typedDataContext.PossibleClients.Contains(_typedDataContext.NewClient)) return;
             _typedDataContext.PossibleClients.Add(_typedDataContext.NewClient);
             BusinessService.Instance.StoreCientList(_typedDataContext.PossibleClients.ToList());
+        }
+
+        private void OnEditStartTime(object sender, KeyEventArgs e)
+        {
+
+            if (e.Key == Key.Enter
+                && e.Source is TextBox tb && TimeSpan.TryParse(tb.Text, out TimeSpan timeSpan)
+                && tb.DataContext is TimeSpent ts
+                && (ts.StartTime.Hour != timeSpan.Hours || ts.StartTime.Minute != timeSpan.Minutes))
+            {
+                var newStartTime = ts.StartTime.Date + timeSpan;
+                ts.StartTime = newStartTime;
+                BusinessService.Instance.RecomputeTimeSpent(_typedDataContext.TodayTasks.ToList());
+                BusinessService.Instance.StoreData(_typedDataContext);
+            }
+        }
+
+        private void OnEditEndTimeTime(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter
+                && e.Source is TextBox tb && TimeSpan.TryParse(tb.Text, out TimeSpan timeSpan)
+                && tb.DataContext is TimeSpent ts && ts.EndTime.HasValue
+                && (ts.EndTime.Value.Hour != timeSpan.Hours || ts.EndTime.Value.Minute != timeSpan.Minutes))
+            {
+                var newEndTime = ts.EndTime.Value.Date + timeSpan;
+                ts.EndTime = newEndTime;
+                BusinessService.Instance.RecomputeTimeSpent(_typedDataContext.TodayTasks.ToList());
+                BusinessService.Instance.StoreData(_typedDataContext);
+            }
+
         }
     }
 }
