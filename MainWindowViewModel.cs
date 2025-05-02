@@ -13,10 +13,12 @@ namespace Cephalog
     {
         public static MainWindowViewModel Instance { get; } = new MainWindowViewModel();
         private readonly ObservableCollection<TimedTask> todayTasks = [];
+        private readonly ObservableCollection<TaskStatistic> taskStatistics = [];
         private TimedTask? currentTask;
 
         public DateTime CurrentDateTime { get; set; }
         public ObservableCollection<TimedTask> TodayTasks => todayTasks;
+        public ObservableCollection<TaskStatistic> TaskStatistics => taskStatistics;
         public TimedTask? CurrentTask { get => currentTask; set => SetProperty(ref currentTask, value); }
         public ObservableCollection<string> PossibleCategories { get; } = [];
         public ObservableCollection<string> PossibleClients { get; } = [];

@@ -32,6 +32,42 @@ namespace Cephalog
             categories.ForEach(_typedDataContext.PossibleCategories.Add);
             var clients = BusinessService.Instance.GetCientList();
             clients.ForEach(_typedDataContext.PossibleClients.Add);
+            InitializeWeeklyStatistics();
+        }
+
+        private void InitializeWeeklyStatistics()
+        {
+            var now = _typedDataContext?.CurrentDateTime ?? DateTime.Now;
+            var firstDayOfWeek = now.AddDays(-(int)now.DayOfWeek);
+            var lastDayOfWeek = now.AddDays(6 - (int)now.DayOfWeek);
+            var allTasksOfWeek = new List<TimedTask>();
+            for (var i = 0; i < 7; i++)
+            {
+                var day = firstDayOfWeek.AddDays(i);
+                var storedDataForDay = BusinessService.Instance.GetData(day);
+                allTasksOfWeek.AddRange(storedDataForDay);
+            }
+            var clientStatistics = allTasksOfWeek
+                .Where(t => !string.IsNullOrWhiteSpace(t.Client))
+                .GroupBy(t => t.Client)
+                .Select(g => new TaskStatistic
+                {
+                    Client = g.Key,
+                    TotalTimeSpent = g.Aggregate(TimeSpan.Zero, (s, t) => s + t.TotalTimeSpent),
+                })
+                .ToList();
+            var categoryStatistics = allTasksOfWeek
+                .Where(t => !string.IsNullOrWhiteSpace(t.Category))
+                .GroupBy(t => t.Category)
+                .Select(g => new TaskStatistic
+                {
+                    Category = g.Key,
+                    TotalTimeSpent = g.Aggregate(TimeSpan.Zero, (s, t) => s + t.TotalTimeSpent),
+                })
+                .ToList();
+            _typedDataContext.TaskStatistics.Clear();
+            clientStatistics.ForEach(_typedDataContext.TaskStatistics.Add);
+            categoryStatistics.ForEach(_typedDataContext.TaskStatistics.Add);
         }
 
         private readonly MainWindowViewModel _typedDataContext;
@@ -111,11 +147,9 @@ namespace Cephalog
 
         private void OnEditStartTime(object sender, KeyEventArgs e)
         {
-
             if (e.Key == Key.Enter
                 && e.Source is TextBox tb && TimeSpan.TryParse(tb.Text, out TimeSpan timeSpan)
-                && tb.DataContext is TimeSpent ts
-                && (ts.StartTime.Hour != timeSpan.Hours || ts.StartTime.Minute != timeSpan.Minutes))
+                && tb.DataContext is TimeSpent ts)
             {
                 var newStartTime = ts.StartTime.Date + timeSpan;
                 ts.StartTime = newStartTime;
@@ -128,8 +162,7 @@ namespace Cephalog
         {
             if (e.Key == Key.Enter
                 && e.Source is TextBox tb && TimeSpan.TryParse(tb.Text, out TimeSpan timeSpan)
-                && tb.DataContext is TimeSpent ts && ts.EndTime.HasValue
-                && (ts.EndTime.Value.Hour != timeSpan.Hours || ts.EndTime.Value.Minute != timeSpan.Minutes))
+                && tb.DataContext is TimeSpent ts && ts.EndTime.HasValue)
             {
                 var newEndTime = ts.EndTime.Value.Date + timeSpan;
                 ts.EndTime = newEndTime;
@@ -137,6 +170,18 @@ namespace Cephalog
                 BusinessService.Instance.StoreData(_typedDataContext);
             }
 
+        }
+
+        private void RefreshWeeklyStatsClick(object sender, RoutedEventArgs e)
+        {
+            this.InitializeWeeklyStatistics();
+        }
+
+        private void DeleteTimeSpent_Click(object sender, RoutedEventArgs e)
+        {
+            this._typedDataContext.CurrentTask?.TimeSpent.Remove((sender as Button)?.DataContext as TimeSpent);
+            BusinessService.Instance.RecomputeTimeSpent(_typedDataContext.TodayTasks.ToList());
+            BusinessService.Instance.StoreData(_typedDataContext);
         }
     }
 }

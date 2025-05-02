@@ -27,6 +27,7 @@
         <StackPanel
             Grid.Row="0"
             Grid.Column="1"
+            d:Visibility="Visible"
             Visibility="{Binding CurrentTask, Converter={StaticResource NullToCollapsedConverter}}">
             <Label
                 Width="54"
@@ -138,6 +139,7 @@
             Grid.Row="1"
             Grid.Column="1"
             d:ItemsSource="{d:SampleData ItemCount=5}"
+            d:Visibility="Visible"
             ItemsSource="{Binding CurrentTask.TimeSpent}"
             Visibility="{Binding CurrentTask, Converter={StaticResource NullToCollapsedConverter}}">
             <ListBox.ItemTemplate>
@@ -151,9 +153,36 @@
                         <TextBlock VerticalAlignment="Center" Text=" -&gt; " />
                         <!--<TextBlock VerticalAlignment="Center" Text="{Binding EndTime, Mode=OneWay, StringFormat='{}{0:HH:mm}'}" />-->
                         <TextBox KeyDown="OnEditEndTimeTime" Text="{Binding EndTime, Mode=TwoWay, StringFormat='{}{0:HH:mm}'}" />
+                        <Button
+                            Margin="5,0,0,0"
+                            VerticalAlignment="Center"
+                            Click="DeleteTimeSpent_Click"
+                            Content="X" />
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <ListBox d:ItemsSource="{d:SampleData ItemCount=5}" ItemsSource="{Binding TaskStatistics}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Category}" />
+                            <TextBlock Text="{Binding Client}" />
+                            <TextBlock VerticalAlignment="Center" Text=" " />
+                            <TextBlock Text="{Binding TotalTimeSpent, Converter={StaticResource TimespanQuarterConverter}}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Button
+                Grid.Row="1"
+                Click="RefreshWeeklyStatsClick"
+                Content="Refresh" />
+        </Grid>
     </Grid>
 </Window>
