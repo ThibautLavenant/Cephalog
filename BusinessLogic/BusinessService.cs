@@ -79,6 +79,21 @@ namespace Cephalog.BusinessLogic
             }
         }
 
+        public void SetAllDatesToDate(List<TimedTask> tasks, DateTimeOffset dateToSet)
+        {
+            foreach (var task in tasks)
+            {
+                foreach (var timeSpent in task.TimeSpent)
+                {
+                    timeSpent.StartTime = dateToSet.Date + timeSpent.StartTime.TimeOfDay;
+                    if (timeSpent.EndTime != null)
+                    {
+                        timeSpent.EndTime = dateToSet.Date + timeSpent.EndTime?.TimeOfDay;
+                    }
+                }
+            }
+        }
+
         public void StoreCientList(List<string> clientList)
         {
             try

@@ -26,7 +26,7 @@
                 NullValue="false" />
 
             <converters:TimespanConverter x:Key="TimespanConverter" Format="hh\:mm" />
-            <converters:TimespanCeilQuarterConverter x:Key="TimespanQuarterConverter" Format="hh\:mm" />
+            <converters:TimespanCeilQuarterConverter x:Key="TimespanQuarterConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

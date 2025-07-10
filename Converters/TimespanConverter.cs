@@ -32,14 +32,23 @@ namespace Cephalog.Converters
 
     public class TimespanCeilQuarterConverter : IValueConverter
     {
-        public string? Format { get; set; }
-
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (value is TimeSpan ts)
             {
                 var ceiledQuarters = BusinessService.Instance.CeilToMinuteDivision(ts, 15);
-                return TimeSpan.FromMinutes(ceiledQuarters * 15).ToString(Format);
+                var timespanToDisplay = TimeSpan.FromMinutes(ceiledQuarters * 15);
+                var totalHours = (int)timespanToDisplay.TotalHours;
+                var totalDays = totalHours / 7;
+                totalHours %= 7;
+                if (totalDays > 0)
+                {
+                    return $"{totalDays:0}d {totalHours:00}:{timespanToDisplay.Minutes:00} ({timespanToDisplay.TotalMinutes / (7 * 60):0.0}jh)";
+                }
+                else
+                {
+                    return $"{timespanToDisplay.TotalHours:00}:{timespanToDisplay.Minutes:00} ({timespanToDisplay.TotalMinutes / (7 * 60):0.0}jh)";
+                }
             }
             else
             {

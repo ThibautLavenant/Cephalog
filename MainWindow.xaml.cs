@@ -45,17 +45,26 @@ namespace Cephalog
             {
                 var day = firstDayOfWeek.AddDays(i);
                 var storedDataForDay = BusinessService.Instance.GetData(day);
+                BusinessService.Instance.SetAllDatesToDate(storedDataForDay, day);
                 allTasksOfWeek.AddRange(storedDataForDay);
             }
             var clientStatistics = allTasksOfWeek
                 .Where(t => !string.IsNullOrWhiteSpace(t.Client))
                 .GroupBy(t => t.Client)
-                .Select(g => new TaskStatistic
-                {
-                    Client = g.Key,
-                    TotalTimeSpent = g.Aggregate(TimeSpan.Zero, (s, t) => s + t.TotalTimeSpent),
+                .Select(g => {
+                    BusinessService.Instance.RecomputeTimeSpent(g.ToList());
+                    return new TaskStatistic
+                    {
+                        Client = g.Key,
+                        TotalTimeSpent = g.Aggregate(TimeSpan.Zero, (s, t) => s + t.TotalTimeSpent),
+                    };
                 })
                 .ToList();
+            var taskPerClient = allTasksOfWeek
+                .Where(t => !string.IsNullOrWhiteSpace(t.Client))
+                .GroupBy(t => t.Client)
+                .ToList();
+
             var categoryStatistics = allTasksOfWeek
                 .Where(t => !string.IsNullOrWhiteSpace(t.Category))
                 .GroupBy(t => t.Category)
@@ -124,8 +133,11 @@ namespace Cephalog
                 _typedDataContext.CurrentDateTime = selectedDate;
                 _typedDataContext.CurrentTask = null;
                 var storedData = BusinessService.Instance.GetData(selectedDate);
+                BusinessService.Instance.SetAllDatesToDate(storedData, selectedDate);
+                BusinessService.Instance.RecomputeTimeSpent(storedData);
                 _typedDataContext.TodayTasks.Clear();
                 storedData.ForEach(_typedDataContext.TodayTasks.Add);
+                BusinessService.Instance.StoreData(_typedDataContext);
             }
         }
 
