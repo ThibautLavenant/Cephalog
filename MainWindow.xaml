@@ -158,6 +158,11 @@
                             VerticalAlignment="Center"
                             Click="DeleteTimeSpent_Click"
                             Content="X" />
+                        <Button
+                            Margin="5,0,0,0"
+                            VerticalAlignment="Center"
+                            Click="SetEndNow"
+                            Content="Register time end" />
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>

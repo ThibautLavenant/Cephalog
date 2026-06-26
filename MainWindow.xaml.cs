@@ -96,6 +96,7 @@ namespace Cephalog
                     EndTime = null,
                     Timespan = null,
                 };
+                _typedDataContext.CurrentTask.TimeSpent.Add(_typedDataContext.CurrentTask.CurrentTimeSpent);
             }
         }
 
@@ -106,7 +107,6 @@ namespace Cephalog
             var realTimespan = DateTimeOffset.Now - _typedDataContext.CurrentTask.CurrentTimeSpent.StartTime;
             _typedDataContext.CurrentTask.CurrentTimeSpent.Timespan = realTimespan;
             _typedDataContext.CurrentTask.TotalTimeSpent += TimeSpan.FromMinutes(BusinessService.Instance.CeilToMinuteDivision(realTimespan, 15) * 15);
-            _typedDataContext.CurrentTask.TimeSpent.Add(_typedDataContext.CurrentTask.CurrentTimeSpent);
             _typedDataContext.CurrentTask.CurrentTimeSpent = null;
             BusinessService.Instance.StoreData(_typedDataContext);
         }
@@ -195,5 +195,12 @@ namespace Cephalog
             BusinessService.Instance.RecomputeTimeSpent(_typedDataContext.TodayTasks.ToList());
             BusinessService.Instance.StoreData(_typedDataContext);
         }
+        private void SetEndNow(object sender, RoutedEventArgs e)
+        {
+            var ts = (sender as Button)?.DataContext as TimeSpent;
+            ts.EndTime = DateTime.Now;
+            BusinessService.Instance.RecomputeTimeSpent(_typedDataContext.TodayTasks.ToList());
+            BusinessService.Instance.StoreData(_typedDataContext);
+        }
     }
-}
+}   

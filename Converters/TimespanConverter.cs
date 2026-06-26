@@ -47,7 +47,7 @@ namespace Cephalog.Converters
                 }
                 else
                 {
-                    return $"{timespanToDisplay.TotalHours:00}:{timespanToDisplay.Minutes:00} ({timespanToDisplay.TotalMinutes / (7 * 60):0.0}jh)";
+                    return $"{totalHours:00}:{timespanToDisplay.Minutes:00} ({timespanToDisplay.TotalMinutes / (7 * 60):0.0}jh)";
                 }
             }
             else
